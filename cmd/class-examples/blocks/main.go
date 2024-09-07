@@ -3,11 +3,8 @@ package main
 import (
 	"html/template"
 	"io"
-	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 type Templates struct {
@@ -25,44 +22,62 @@ func NewTemplates() *Templates {
 }
 
 type Block struct {
-    Id int
+	Id int
 }
 
 type Blocks struct {
-    Start int
-    Next int
-    More bool
-    Blocks []Block
+	Start  int
+	Next   int
+	More   bool
+	Blocks []Block
+}
+
+type Count struct {
+	Count int
 }
 
 func main() {
 	e := echo.New()
-    e.Renderer = NewTemplates()
-    e.Use(middleware.Logger())
+	e.Renderer = NewTemplates()
 
-    e.GET("/blocks", func(c echo.Context) error {
-        startStr := c.QueryParam("start")
-        start, err := strconv.Atoi(startStr)
-        if err != nil {
-            start = 0
-        }
+	// e.Use(middleware.Logger())
 
-        blocks := []Block{}
-        for i := start; i < start + 10; i++ {
-            blocks = append(blocks, Block{Id: i})
-        }
+	count := Count{Count: 0}
 
-        template := "blocks"
-        if start == 0 {
-            template = "blocks-index"
-        }
-        return c.Render(http.StatusOK, template, Blocks{
-            Start: start,
-            Next: start + 10,
-            More: start + 10 < 100,
-            Blocks: blocks,
-        });
-    });
+	e.GET("/", func(c echo.Context) error {
+		// console.log('what');
+		return c.Render(200, "index", count)
 
-    e.Logger.Fatal(e.Start(":42069"))
+	})
+
+	e.POST("/count", func(c echo.Context) error {
+		count.Count++
+		return c.Render(200, "count", count)
+	})
+
+	// e.GET("/blocks", func(c echo.Context) error {
+	// 	startStr := c.QueryParam("start")
+	// 	start, err := strconv.Atoi(startStr)
+	// 	if err != nil {
+	// 		start = 0
+	// 	}
+
+	// 	blocks := []Block{}
+	// 	for i := start; i < start+10; i++ {
+	// 		blocks = append(blocks, Block{Id: i})
+	// 	}
+
+	// 	template := "blocks"
+	// 	if start == 0 {
+	// 		template = "blocks-index"
+	// 	}
+	// 	return c.Render(http.StatusOK, template, Blocks{
+	// 		Start:  start,
+	// 		Next:   start + 10,
+	// 		More:   start+10 < 100,
+	// 		Blocks: blocks,
+	// 	})
+	// })
+
+	e.Logger.Fatal(e.Start(":42069"))
 }
