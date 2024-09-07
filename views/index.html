@@ -1,21 +1,36 @@
 {{block "index" .}}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Marcelo Index</title>
-    <script src="https://unpkg.com/htmx.org@2.0.2"></script>
-  </head>
-  <body>
-    <div id="count">{{ template "count" .}}</div>
-    <button hx-target="#count" hx-post="/count">Count</button>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marcelo Index</title>
+  <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+</head>
+
+<body>
+  {{template "form" .}}
+  <hr />
+  {{template "display" .}}
+</body>
+
 </html>
+{{end}} {{block "form" .}}
+<form hx-swap="outerHTML" hx-target="#contacts" hx-post="/contacts">
+  name: <input type="text" name="name" />
+  email: <input type="email" name="email" />
+  <button type="submit">Create Contact</button>
+</form>
 {{end}}
-<!--  -->
-{{block "count" .}}
-<!--  -->
-Count {{.Count}}
-<!--  -->
+
+{{block "display" .}}
+<div id="contacts" style="display: flex; flex-direction: column;">
+  {{range .Contacts}}
+  <div>
+    Name: <span>{{.Name}}</span>
+    Email: <span>{{.Email}}</span>
+  </div>
+  {{end}}
+</div>
 {{end}}
