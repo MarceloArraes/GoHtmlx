@@ -10,16 +10,33 @@
 </head>
 
 <body>
-  {{template "form" .}}
+  {{template "form" .Form}}
   <hr />
-  {{template "display" .}}
+  {{template "display" .Data}}
+  <script>
+    document.addEventListener("DOMContentLoaded", (event) => {
+      document.body.addEventListener('htmx:beforeSwap', function (evt) {
+        if (evt.detail.xhr.status === 422) {
+          evt.detail.shouldSwap = true;
+          evt.detail.isError = false;
+
+
+        }
+      })
+    })
+
+  </script>
 </body>
 
 </html>
-{{end}} {{block "form" .}}
-<form hx-swap="outerHTML" hx-target="#contacts" hx-post="/contacts">
-  name: <input type="text" name="name" />
-  email: <input type="email" name="email" />
+{{end}}
+{{block "form" .}}
+<form hx-swap="outerHTML" hx-post="/contacts">
+  name: <input {{if .Values.name}} value="{{.Values.name}}" {{end}} type="text" name="name" />
+  email: <input {{if .Values.email}} value="{{.Values.email}}" {{end}} type="email" name="email" />
+  {{if .Errors.email}}
+  <div style="color: red">{{.Errors.email}}</div>
+  {{end}}
   <button type="submit">Create Contact</button>
 </form>
 {{end}}
