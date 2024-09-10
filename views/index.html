@@ -33,7 +33,7 @@
 {{block "form" .}}
 <form hx-swap="outerHTML" hx-post="/contacts">
   name: <input {{if .Values.name}} value="{{.Values.name}}" {{end}} type="text" name="name" />
-  email: <input {{if .Values.email}} value="{{.Values.email}}" {{end}} type="email" name="email" />
+  email: <input {{if .Values.email}} value="{{.Values.email}}" {{end}} type="text" name="email" />
   {{if .Errors.email}}
   <div style="color: red">{{.Errors.email}}</div>
   {{end}}
@@ -44,10 +44,20 @@
 {{block "display" .}}
 <div id="contacts" style="display: flex; flex-direction: column;">
   {{range .Contacts}}
-  <div>
-    Name: <span>{{.Name}}</span>
-    Email: <span>{{.Email}}</span>
-  </div>
+  {{template "contact" .}}
   {{end}}
+</div>
+{{end}}
+
+{{block "contact" .}}
+<div>
+  Name: <span>{{.Name}}</span>
+  Email: <span>{{.Email}}</span>
+</div>
+{{end}}
+
+{{block "oob-contact" .}}
+<div id="contacts" hx-swap-oob="afterbegin">
+  {{template "contact" .}}
 </div>
 {{end}}
