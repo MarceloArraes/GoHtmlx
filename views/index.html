@@ -7,6 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Marcelo Index</title>
   <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+  <link rel="stylesheet" href="/css/index.css">
+
 </head>
 
 <body>
@@ -26,7 +28,9 @@
     })
 
   </script>
+
 </body>
+
 
 </html>
 {{end}}
@@ -50,9 +54,23 @@
 {{end}}
 
 {{block "contact" .}}
-<div>
+<div class="contact" id="contact-{{.Id}}" style="display: flex;">
+  <div hx-indicator="#contact-indicator-{{.Id}}" hx-swap="outerHTML swap:500ms" hx-target="#contact-{{.Id}}"
+    hx-delete="/contact/{{.Id}}" style="width: 1rem; cursor: pointer;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 6h18" />
+      <path d="M8 6v14c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V6" />
+      <path d="M10 6V4c0-.6.4-1 1-1h2c.6 0 1 .4 1 1v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  </div>
   Name: <span>{{.Name}}</span>
   Email: <span>{{.Email}}</span>
+  <div id="contact-indicator-{{.Id}}" class="htmx-indicator">
+    <img src="/images/bars.svg" alt="loading" style="width: 1rem;" />
+  </div>
 </div>
 {{end}}
 

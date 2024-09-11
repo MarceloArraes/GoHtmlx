@@ -3,6 +3,9 @@ package main
 import (
 	"html/template"
 	"io"
+	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -15,6 +18,11 @@ type Templates struct {
 func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
+
+/*
+e.Static("/images", "images")
+e.Static("/css", "css")
+*/
 
 func NewTemplate() *Templates {
 	return &Templates{
@@ -36,15 +44,21 @@ type Blocks struct {
 type Count struct {
 	Count int
 }
+
+var id int = 0
+
 type Contact struct {
 	Name  string
 	Email string
+	Id    int
 }
 
 func newContact(name string, email string) Contact {
+	id++
 	return Contact{
 		Name:  name,
 		Email: email,
+		Id:    id,
 	}
 }
 
@@ -61,6 +75,15 @@ func (d *Data) hasEmail(email string) bool {
 
 type Data struct {
 	Contacts Contacts
+}
+
+func (d *Data) indexOf(id int) int {
+	for i, contact := range d.Contacts {
+		if contact.Id == id {
+			return i
+		}
+	}
+	return -1
 }
 
 func newData() Data {
@@ -106,6 +129,9 @@ func main() {
 	page := newPage()
 	e.Renderer = NewTemplate()
 
+	e.Static("/images", "images")
+	e.Static("/css", "css")
+
 	e.GET("/", func(c echo.Context) error {
 		// console.log('what');
 		return c.Render(200, "index", page)
@@ -137,7 +163,24 @@ func main() {
 		// }
 	})
 
-	/* e.GET("/blocks", func(c echo.Context) error {
+	e.DELETE("/contact/:id", func(c echo.Context) error {
+		time.Sleep(1 * time.Second)
+		idStr := c.Param("id")
+
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return c.String(400, "Invalid id")
+		}
+		index := page.Data.indexOf(id)
+		if index == -1 {
+			return c.String(404, "Contact not found")
+		}
+
+		page.Data.Contacts = append(page.Data.Contacts[:index], page.Data.Contacts[index+1:]...)
+		return c.NoContent(200)
+	})
+
+	e.GET("/blocks", func(c echo.Context) error {
 		startStr := c.QueryParam("start")
 		start, err := strconv.Atoi(startStr)
 		if err != nil {
@@ -159,7 +202,7 @@ func main() {
 			More:   start+10 < 100,
 			Blocks: blocks,
 		})
-	}) */
+	})
 
 	e.Logger.Fatal(e.Start(":42069"))
 }
